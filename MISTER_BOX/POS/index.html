@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISTER BOX</title>
+    <link rel="icon" type="image/x-icon" href="../assets/logo.png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        h1 {
+            font-family: 'Cinzel', serif;
+        }
+        body.light-mode {
+            background-color: #f8f9fad7;
+            color: #000000;
+        }
+        body.dark-mode {
+            background-color: #000000;
+            color: #e0e0e0;
+        }
+        .card {
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .modal-content {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode .modal-content {
+            background-color: #000000;
+            color: #e0e0e0;
+        }
+        .modal-backdrop.show {
+            backdrop-filter: blur(5px);
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+       
+
+        .btn-black {
+        background-color: black;
+        border-color: black;
+        color: white;
+    }
+
+    .btn-black:hover {
+        background-color: #333333;
+        border-color: #333333;
+        color: white;
+    }
+
+    .btn-gray {
+        background-color: #333333;
+        border-color: #333333;
+        color: white;
+    }
+
+    .btn-gray:hover {
+        background-color: darkred;
+        border-color: darkred;
+        color: white;
+    }
+    </style>
+</head>
+<body class="light-mode">
+
+  <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <img src="../assets/logolight.png" alt="Logo" style="height: 50px; margin-right: 10px;">
+          <h1>MISTER BOX</h1> 
+          <button onclick="toggleMode()" class="btn btn-outline-secondary" id="modeBtn">
+              <i class="bi bi-moon-fill"></i> Night
+          </button>
+      </div>
+
+      
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Menu</h3>
+            <div class="row" id="menu"></div>
+        </div>
+
+        <div class="col-md-4">
+          <h3>Ordered Items</h3>
+          <ul class="list-group mb-3" id="orderList"></ul>
+          <h5>Total: <span id="total">0</span> PHP</h5>
+          <input type="number" class="form-control my-2" id="moneyInput" placeholder="Enter payment amount" min="0">
+          <button class="btn btn-success w-100 mb-2" onclick="processPayment()">Pay</button>
+          <button class="btn btn-gray w-100" onclick="confirmCancel()">Cancel</button>
+      </div>
+      
+        
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-light text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="receiptModalLabel">Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            onclick="clearOrder()"></button>
+      </div>
+      <div class="modal-body" id="receiptContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="printReceipt()">Print</button>
+
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="clearOrder()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const items = [
+        { name: 'Twilight Pillow Ravioli', price: 480, image: '../assets/food1.png' },
+        { name: 'Midnight Coil Elegance', price: 520, image: '../assets/food2.png' },
+        { name: 'Garden Rubies Mosaic', price: 390, image: '../assets/food3.png' },
+        { name: 'Stratosphere of Decadence', price: 520, image: '../assets/food4.png' },
+        { name: 'Harvest Moon Symphony', price: 490, image: '../assets/food5.png' },
+        { name: 'Duet of Verdant Revelations', price: 450, image: '../assets/food6.png' },
+        { name: 'Celestial Tide Convergence', price: 560, image: '../assets/food7.png' },
+        { name: 'Effervenscent Twilight Libation', price: 890, image: '../assets/food8.png' },
+    ];
+
+    const order = [];
+
+    function createMenu() {
+        const menu = document.getElementById('menu');
+        menu.innerHTML = '';
+        items.forEach((item, index) => {
+            menu.innerHTML += `
+                <div class="col-md-3 mb-4 d-flex">
+                    <div class="card w-100 p-2 d-flex flex-column justify-content-between">
+                        <img src="${item.image}" class="card-img-top mb-2" alt="${item.name}">
+                        <div class="card-body d-flex flex-column justify-content-between text-center">
+                            <h5 class="card-title">${item.name}</h5>
+                            <p>${item.price} PHP</p>
+                            <input type="number" id="qty${index}" class="form-control mb-2" min="0" max="99" value="0" oninput="validateQty(this)">
+                           <button class="btn btn-black" onclick="addToOrder(${index})">Add to Order</button>
+
+
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function validateQty(input) {
+        let value = parseInt(input.value) || 0;
+        input.value = Math.max(0, Math.min(99, value));
+    }
+
+    function addToOrder(index) {
+        const qty = parseInt(document.getElementById(`qty${index}`).value);
+        if (qty > 0) {
+            const item = items[index];
+            const existing = order.find(o => o.name === item.name);
+            if (existing) {
+                existing.quantity += qty;
+            } else {
+                order.push({ name: item.name, price: item.price, quantity: qty });
+            }
+            updateOrderList();
+            document.getElementById(`qty${index}`).value = 0; 
+        }
+    }
+
+    function updateOrderList() {
+        const list = document.getElementById('orderList');  
+        list.innerHTML = '';
+        let total = 0;
+        order.forEach(item => {
+            total += item.price * item.quantity;
+            list.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${item.name} x${item.quantity} 
+                    <span class="badge bg-black">${item.price * item.quantity} PHP</span>
+                </li>`;
+        });
+        document.getElementById('total').innerText = total;
+    }
+
+    function processPayment() {
+        const total = parseInt(document.getElementById('total').innerText);
+        const money = parseInt(document.getElementById('moneyInput').value);
+
+        if (total === 0) {
+            alert('No items ordered.');
+            return;
+        }
+        if (isNaN(money) || money < total) {
+            alert('Not enough balance. Please try again.');
+            return;
+        }
+
+        let receipt = '<strong>---- RECEIPT ----</strong><br>';
+        order.forEach(item => {
+            receipt += `${item.name} x ${item.quantity} = ${item.price * item.quantity} PHP<br>`;
+        });
+        receipt += `----------------------<br>`;
+        receipt += `<strong>Total:</strong> ${total} PHP<br>`;
+        receipt += `<strong>Money Received:</strong> ${money} PHP<br>`;
+        receipt += `<strong>Change:</strong> ${money - total} PHP`;
+
+        document.getElementById('receiptContent').innerHTML = receipt;
+        new bootstrap.Modal(document.getElementById('receiptModal')).show();
+
+        // Reset quantity 
+        items.forEach((_, index) => {
+            document.getElementById(`qty${index}`).value = 0;
+        });
+    }
+
+    function printReceipt() {
+    const printContent = document.getElementById('receiptContent').innerHTML;
+    const win = window.open('', '', 'height=600,width=400');
+    win.document.write('<html><head><title>Receipt</title></head><body>');
+    win.document.write('<div style="font-family: Cinzel, serif;">' + printContent + '</div>');
+    win.document.write('</body></html>');
+    win.document.close();
+    win.print();
+
+    // Reset quantity 
+    items.forEach((_, index) => {
+        document.getElementById(`qty${index}`).value = 0;
+    });
+    document.getElementById('moneyInput').value = '';
+    order.length = 0;
+    updateOrderList();
+}
+
+function confirmCancel() {
+    if (confirm("Are you sure you want to cancel the order?")) {
+        clearOrder(); 
+    }
+}
+
+    function clearOrder() {
+        order.length = 0;
+        updateOrderList();
+        document.getElementById('moneyInput').value = '';
+    }
+
+    function toggleMode() {
+    const body = document.body;
+    const btn = document.getElementById('modeBtn');
+    const logo = document.querySelector('img');
+
+    if (body.classList.contains('light-mode')) {
+        body.classList.replace('light-mode', 'dark-mode');
+        btn.innerHTML = '<i class="bi bi-sun-fill"></i> Light';
+        logo.src = "../assets/logo.png"; 
+    } else {
+        body.classList.replace('dark-mode', 'light-mode');
+        btn.innerHTML = '<i class="bi bi-moon-fill"></i> Night';
+        logo.src = "../assets/logolight.png"; 
+    }
+}
+
+    createMenu();
+</script>
+</body>
+</html>
