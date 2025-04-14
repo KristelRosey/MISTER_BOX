@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISTER BOX - Menu</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="../assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-gray-300 min-h-screen flex flex-col items-center px-8 py-10">
+
+    <nav class="flex space-x-6 text-lg mb-10 text-gray-400">
+        <a href="index.html" class="hover:text-white hover:underline">Welcome</a>
+        <a href="about.html" class="hover:text-white hover:underline">About</a>
+        <a href="menu.html" class="hover:text-white hover:underline">Menu</a>
+    </nav>
+    <!-- Page Title -->
+        <h1 class="text-4xl text-center text-white font-['Cinzel'] drop-shadow mb-6">The MENU</h1>
+
+    <!-- Menu Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 z-10">
+    
+        <img src="../assets/food1.png" alt="Food 1" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(1)">
+        <img src="../assets/food2.png" alt="Food 2" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(2)">
+        <img src="../assets/food3.png" alt="Food 3" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(3)">
+        <img src="../assets/food4.png" alt="Food 4" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(4)">
+        <img src="../assets/food5.png" alt="Food 5" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(5)">
+        <img src="../assets/food6.png" alt="Food 6" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(6)">
+        <img src="../assets/food7.png" alt="Food 7" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(7)">
+        <img src="../assets/food8.png" alt="Food 8" class="cursor-pointer hover:scale-105 transition duration-300 rounded-lg shadow-lg" onclick="openModal(8)">
+    </div>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden flex items-center justify-center z-20">
+        <div class="bg-black rounded-2xl p-6 max-w-md text-center">
+            <img id="modalImage" src="" alt="Selected Food" class="w-[800px] mx-auto rounded-lg mb-4">
+            <div id="modalDetails" class="space-y-2 text-gray-300 text-lg font-['Roboto']">
+               
+            </div>
+            <button onclick="closeModal()" class="mt-4 px-4 py-2 bg-gray-dark hover:bg-gray-600 rounded-full">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const foodData = {
+            1: { name: "Twilight Pillow Ravioli", altname: "Ravioli Kusen Soley Kuse", ingredients: ["hand-pressed pasta", "wild mushroom", "truffle filling","sage brown butter sauce","aged parmesan", "toasted pine nuts", "micro herbs"], price: "₱480" },
+            2: { name: "Midnight Coil Elegance", altname: "Elegans Spiral Minwi", ingredients: ["squid Ink Pasta", "truffle cream", "basil", "pine nuts", "pecorino"], price: "₱520" },
+            3: { name: "Garden Rubies Mosaic", altname: "Mozaik Ribi Zardin", ingredients: ["multi-colored heirloom tomatoes", "cashew-based vegan cheese", "basil oil", "aged balsamic glaze", "maldon sea salt", "micro basil"], price: "₱390" },
+            4: { name: "Stratosphere of Decadence", altname: "Stratosfer Dekadans", ingredients: ["house-made pasta sheets", "slow-simmered ragu", "bechamel", "three artisanal cheeses", "fresh herbs", "truffle essence"], price: "₱520" },
+            5: { name: "Harvest Moon Symphony", altname: "Sinfoni Lalin Rekolte", ingredients: ["wild mushroom risotto", "aged parmesan", "microgreens", "white truffle oil"], price: "₱490" },
+            6: { name: "Duet of Verdant Revelations", altname: "Dyo Revelasion Ver", ingredients: ["squash blossoms", "goat cheese", "balsdamic redection, edible flowers"], price: "₱450" },
+            7: { name: "Celestial Tide Convergence", altname: "Konverzans MareSelest", ingredients: ["cured pork belly", "maple glaze", "starnise", "black pepper"], price: "₱560" },
+            8: { name: "Effervenscent Twilight Libation", altname: "Libasion Twilayt Efervesen", ingredients: ["vintage champagne", "elderflower syrup", "crystallized rose petals"], price: "₱890" }
+        };
+
+        function openModal(id) {
+            const modal = document.getElementById('modalOverlay');
+            const img = document.getElementById('modalImage');
+            const details = document.getElementById('modalDetails');
+
+            img.src = `../assets/food${id}.png`;
+            const data = foodData[id];
+
+            details.innerHTML = `
+                <div><strong class="text-white"></strong>${data.name}</div>
+                <div><strong class="text-white"></strong> <span class="italic">${data.altname}</span></div>
+                <div><strong class="text-white">Ingredients:</strong><ul class="list-disc list-inside text-sm">${data.ingredients.map(i => `<li>${i}</li>`).join('')}</ul></div>
+                <div><strong class="text-white">Price:</strong> ${data.price}</div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
